@@ -3,7 +3,7 @@ r2_d2.py - German Whist Competition Bot
 Strategy: Card tracking, valuation heuristics in Phase 1, perfect-information play in Phase 2.
 """
 
-# Global persistent tracking across tricks within the same module memory
+# tracking across tricks within the same module memory
 _MEMORY = {
     "seen_cards": set(),
     "last_hand_len": 0,
@@ -24,7 +24,7 @@ def _card_value(card, trump_suit):
     suit, rank = card
     base = rank
     if suit == trump_suit:
-        base += 15  # Trumps hold higher intrinsic value
+        base += 15  
     return base
 
 
@@ -57,15 +57,13 @@ def nextMove(gameState):
         legal = _get_legal_moves(hand, gameState.current_trick)
         trump = gameState.trump_suit
 
-        # ------------------------------------------------------------------
-        # PHASE 1: RECRUITMENT
-        # ------------------------------------------------------------------
+        # PHASE 1
         if gameState.phase == 1:
             target = gameState.face_up_card
             target_val = _card_value(target, trump) if target else 10
             is_desirable = target_val >= 12  # High card or Trump
 
-            # --- FOLLOWING ---
+            # FOLLOWING
             if gameState.current_trick:
                 opponent_card = gameState.current_trick[0][1]
                
@@ -90,7 +88,7 @@ def nextMove(gameState):
                         return min(losing_cards, key=lambda c: _card_value(c, trump))
                     return min(legal, key=lambda c: _card_value(c, trump))
 
-            # --- LEADING ---
+            # LEADING
             else:
                 if is_desirable:
                     # Lead a high card to secure the desirable stock card
@@ -102,15 +100,13 @@ def nextMove(gameState):
                         return min(non_trumps, key=lambda c: c[1])
                     return min(legal, key=lambda c: _card_value(c, trump))
 
-        # ------------------------------------------------------------------
-        # PHASE 2: SCORING
-        # ------------------------------------------------------------------
+        # PHASE 2
         else:
             # Reconstruct opponent's hand by elimination
             all_cards = {(s, r) for s in ["H", "D", "C", "S"] for r in range(2, 15)}
             known_opponent_hand = all_cards - _MEMORY["seen_cards"] - set(hand)
 
-            # --- FOLLOWING ---
+            # FOLLOWING 
             if gameState.current_trick:
                 opponent_card = gameState.current_trick[0][1]
                
@@ -127,7 +123,7 @@ def nextMove(gameState):
                     # Discard lowest card
                     return min(legal, key=lambda c: _card_value(c, trump))
 
-            # --- LEADING ---
+            # LEADING 
             else:
                 # Find boss/unbeatable cards in hand
                 boss_cards = []
@@ -152,7 +148,7 @@ def nextMove(gameState):
                 return min(legal, key=lambda c: _card_value(c, trump))
 
     except Exception:
-        # Emergency Fallback: Ensure bot NEVER forfeits due to unhandled exceptions
+        # Emergency Fallback: Ensure bot never forfeits due to unhandled exceptions
         if gameState.current_trick:
             lead_suit = gameState.current_trick[0][1][0]
             same_suit = [c for c in gameState.your_hand if c[0] == lead_suit]

@@ -148,7 +148,7 @@ def nextMove(gameState):
                 return min(legal, key=lambda c: _card_value(c, trump))
 
     except Exception:
-        # Emergency Fallback: Ensure bot never forfeits due to unhandled exceptions
+        # Ensure bot never forfeits due to unhandled exceptions
         if gameState.current_trick:
             lead_suit = gameState.current_trick[0][1][0]
             same_suit = [c for c in gameState.your_hand if c[0] == lead_suit]
